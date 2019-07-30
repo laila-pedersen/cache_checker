@@ -3,3 +3,9 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+
+  form(method='POST' action='/check_cache')
+    div.form-group
+      label(for='spreadsheeturl') Spreadsheet Url: 
+      input(type='textfield', name='spreadsheeturl', placeholder='https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXXXXX' )
+    button.btn.btn-primary(type='submit') Check
