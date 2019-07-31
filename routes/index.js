@@ -1,5 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const rp = require('request-promise');
+const googleCache = require('../services/google_cache');
+
+const testUrl = 'https://www.fx-cube.jp/content/i002'
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
@@ -7,10 +11,36 @@ router.get('/', (req, res, next) => {
 });
 
 /* POST form to receive sheet with page information */
-router.post('/check_cache', (req, res, next) => {
-  const spreadsheeturl = req.body.spreadsheeturl
-  res.send('Thank you, the result will end up at ' + spreadsheeturl)
+router.post('/check_cache', async (req, res, next) => {
+  try {
+    const pageList = await getPageList()
+    const pageCount = pageList['pages'].length
+    const googleCacheDate = await googleCache(testUrl)
+
+    for (i = 0; i < pageCount; i++) {
+      let page = pageList['pages'][i][0]
+
+    }
+    res.send('Thank you, the result will end up at ' + JSON.stringify(pageList))
+  } catch (e) {
+    next(e)
+  }
 
 });
+
+const getPageList = () => {
+  return new Promise( (resolve,reject) => {
+  rp('http://localhost:3000/spreadsheet/page_list')
+      .then( (res) => {
+        const json = JSON.parse(res)
+        return resolve(json)
+      })
+      .catch( (err) => {
+        console.log('Something went wrong when calling internal page_list API ' + err)
+        return reject(err)
+      });
+  });
+}
+
 
 module.exports = router;

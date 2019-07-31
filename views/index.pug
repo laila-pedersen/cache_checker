@@ -3,9 +3,15 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+  p Step 1:
+    |
+    | Insert Pages here first
+    |
+    a(href='https://docs.google.com/spreadsheets/d/1I8lAWNhnFW8OgWh2caS1Bgv8L9A8b3NqPY4iAB-JHTU') マスターシート
+  p Step 2:
+    |
+    | When ready, press below button and wait while a new sheet with the results get added.
 
   form(method='POST' action='/check_cache')
     div.form-group
-      label(for='spreadsheeturl') Spreadsheet Url: 
-      input(type='textfield', name='spreadsheeturl', placeholder='https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXXXXX' )
-    button.btn.btn-primary(type='submit') Check
+    button.btn.btn-primary(type='submit') LET'S GO!!
