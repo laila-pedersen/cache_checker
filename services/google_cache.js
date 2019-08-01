@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const moment = require('moment');
 
 const googleCacheUrl = 'http://webcache.googleusercontent.com/search?q=cache:'
 const keyEnglishString = 'It is a snapshot of the page as it appeared on'
@@ -20,14 +21,10 @@ const getCachedDate = async (pageUrl) => {
     try {
       const firstDiv = $('[id$="google-cache-hdr"]').text()
 
-      const string1 = firstDiv.split(keyJapaneseString)[1];
-      const string2 = string1.split(gmtString)[0];
+      const splitString1 = firstDiv.split(keyJapaneseString)[1];
+      const splitString2 = splitString1.split(gmtString)[0];
 
-      console.log(string2)
-
-      const cacheDate = new Date(string2);
-
-      console.log(cacheDate)
+      const cacheDate = moment(splitString2, "YYYY年MM月DD日 HH:mm:ss");
 
       return resolve(cacheDate)
     } catch (e) {
