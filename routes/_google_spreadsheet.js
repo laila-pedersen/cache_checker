@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
+const moment = require('moment')
 const readline = require('readline');
 const {google} = require('googleapis');
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
@@ -35,6 +36,73 @@ router.get('/page_list', (req, res, next) => {
     });
   }
 })
+
+router.post('/insert_result', (req, res, next) => {
+  try {
+    // Load client secrets from a local file.
+    fs.readFile('credentials.json', (err, content) => {
+      if (err) return console.log('Error loading client secret file:', err);
+      // Authorize a client with credentials, then call the Google Sheets API.
+      authorize(JSON.parse(content), sendResultToSpreadsheet);
+    });
+
+    async function sendResultToSpreadsheet(auth) {
+      console.log('Start Sending Result to spreadsheet')
+
+      const sheets = google.sheets({version: 'v4', auth});
+      const today = moment().format('YYYY-MM-DD');
+
+      const values = req.body.data
+
+      await createSheet(sheets, today);
+      writeSheet(sheets, values, today);
+
+    }
+  } catch (e) {
+    next(e)
+  }
+})
+
+function writeSheet(sheets, values, today) {
+  sheets.spreadsheets.values.append({
+    spreadsheetId: '1I8lAWNhnFW8OgWh2caS1Bgv8L9A8b3NqPY4iAB-JHTU',
+    range: today + "!A:E",
+    valueInputOption: 'USER_ENTERED',
+    requestBody: {
+      values: values
+    }
+  })
+}
+
+function createSheet(sheets, today) {
+  return new Promise( (resolve,reject) => {
+  sheets.spreadsheets.batchUpdate({
+    spreadsheetId: '1I8lAWNhnFW8OgWh2caS1Bgv8L9A8b3NqPY4iAB-JHTU',
+    resource: {
+      requests: [
+        {
+          addSheet: {
+            properties: {
+              title: today,
+              gridProperties: {
+                rowCount: 20,
+                columnCount: 5
+              },
+            }
+          }
+        }
+      ],
+    }
+  }, (err, response) => {
+    if (err) {
+      if (err.message.includes('already exists')) return resolve()
+      return reject(err)
+    }
+    return resolve()
+  })
+  });
+}
+
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
  * given callback function.

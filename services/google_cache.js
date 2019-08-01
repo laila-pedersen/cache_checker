@@ -1,22 +1,18 @@
 const rp = require('request-promise');
+const cheerio = require('cheerio')
 const moment = require('moment');
 
 const googleCacheUrl = 'http://webcache.googleusercontent.com/search?q=cache:'
-const keyEnglishString = 'It is a snapshot of the page as it appeared on'
+// const keyEnglishString = 'It is a snapshot of the page as it appeared on'
 const keyJapaneseString = 'のキャッシュです。 このページは'
 const gmtString = 'GMT'
-
-const fs = require('fs');
-
-const cheerio = require('cheerio')
-const html = fs.readFileSync('./services/google_cache_sample.html');
-const $ = cheerio.load(html)
 
 
 const getCachedDate = async (pageUrl) => {
   console.log('Start fetching cached date')
-  // const html = await scrapeGoogleWebCache(pageUrl)
-  // console.log(html)
+  const html = await scrapeGoogleWebCache(pageUrl)
+  const $ = cheerio.load(html)
+
   return new Promise( (resolve,reject) => {
     try {
       const firstDiv = $('[id$="google-cache-hdr"]').text()
@@ -59,7 +55,7 @@ const scrapeGoogleWebCache = (pageUrl) => {
 }
 
 function detectCaptcha(html) {
-  var unusualTraffic = "Our systems have detected unusual traffic from your computer network."
+  const unusualTraffic = "Our systems have detected unusual traffic from your computer network."
   if (html.indexOf(unusualTraffic) !== -1) {
     return true
   }
