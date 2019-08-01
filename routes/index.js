@@ -21,7 +21,7 @@ router.post('/check_cache', async (req, res, next) => {
       let page = pageList['pages'][i][0]
 
     }
-    res.send('Thank you, the result will end up at ' + JSON.stringify(pageList))
+    res.send('Thank you, please wait while the request is being processed.')
   } catch (e) {
     next(e)
   }
