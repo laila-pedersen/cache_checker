@@ -47,40 +47,6 @@ router.post('/check_cache', async (req, res, next) => {
 
 });
 
-// const sendToSheet = (resultCollection) => {
-//   const options = {
-//     method: 'POST',
-//     uri: 'http://localhost:3000/spreadsheet/insert_result',
-//     body: {
-//         data: resultCollection
-//     },
-//     json: true // Automatically stringifies the body to JSON
-//   };
-//
-//   rp(options)
-//     .then(function (parsedBody) {
-//       console.log("POST succeeded...")
-//     })
-//     .catch(function (err) {
-//       console.log("POST failed with error " + err)
-//     });
-// }
-
-
-// const getPageList = () => {
-//   return new Promise( (resolve,reject) => {
-//   rp('http://localhost:3000/spreadsheet/page_list')
-//       .then( (res) => {
-//         const json = JSON.parse(res)
-//         return resolve(json)
-//       })
-//       .catch( (err) => {
-//         console.log('Something went wrong when calling internal page_list API ' + err)
-//         return reject(err)
-//       });
-//   });
-// }
-
 function sleep() {
   return new Promise(resolve => setTimeout(resolve, randomDelayTime()));
 }
