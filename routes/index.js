@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const rp = require('request-promise');
 const getGoogleCache = require('../services/google_cache');
+const checkSonetCache = require('../services/sonet_cache')
 const googleSheets = require('../services/google_spreadsheets')
 
 const testUrl = 'https://www.fx-cube.jp/content/i002'
@@ -30,6 +31,7 @@ router.post('/check_cache', async (req, res, next) => {
       const todayInMs = Date.parse(currentTime);
       const timePassedInMs = todayInMs - cacheDateInMs
       const oneDayInMs = 1000*60*60*24;
+      const sonetResult = await checkSonetCache(page)
 
       const daysPassed = Math.round(timePassedInMs/oneDayInMs);
 
