@@ -17,31 +17,24 @@ router.post('/check_cache', async (req, res, next) => {
   try {
     const resultCollection = []
 
-    const pageList = await googleSheets.getPagesFromSheet()
-    const pageCount = pageList['pages'].length
+    let pageList = await googleSheets.getPagesFromSheet()
+    pageList = pageList['pages']
+    const pageCount = pageList.length
+    console.log(pageList)
 
     await googleSheets.createSheet()
 
     for (i = 0; i < pageCount; i++) {
-      const page = pageList['pages'][i][0]
+      console.log("Iteration: " + i)
+      const page = pageList[i][0]
       const googleCacheDate = await getGoogleCache(page)
 
-      const cacheDateInMs = Date.parse(googleCacheDate);
-      const currentTime = new Date()
-      const todayInMs = Date.parse(currentTime);
-      const timePassedInMs = todayInMs - cacheDateInMs
-      const oneDayInMs = 1000*60*60*24;
       const sonetResult = await checkSonetCache(page)
 
-      const daysPassed = Math.round(timePassedInMs/oneDayInMs);
-
-      const ary = [page, googleCacheDate, daysPassed, "So-net"]
-      resultCollection.push(ary)
+      const ary = [[page, googleCacheDate[0], googleCacheDate[1], sonetResult]]
+      const finish = googleSheets.writeSheet(ary)
       await sleep()
     }
-
-    const finish = googleSheets.writeSheet(resultCollection)
-
     res.send('Thank you, please wait while the request is being processed.')
   } catch (e) {
     next(e)
@@ -54,8 +47,8 @@ function sleep() {
 }
 
 function randomDelayTime() {
-  const min = 4000;
-  const max = 11000;
+  const min = 10000;
+  const max = 41000;
   const random = Math.random() * (+max - +min) + +min;
 
   return random
