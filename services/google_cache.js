@@ -15,23 +15,35 @@ const getCachedDate = async (pageUrl) => {
 
   return new Promise( (resolve,reject) => {
     try {
+      if (html === "Error 404") {
+        return resolve(["Error 404 (Not Found)", "?"])
+      }
       const firstDiv = $('[id$="google-cache-hdr"]').text()
 
       const splitString1 = firstDiv.split(keyJapaneseString)[1];
       const splitString2 = splitString1.split(gmtString)[0];
+      let cacheDate = moment(splitString2, "YYYY年MM月DD日 HH:mm:ss");
 
-      const cacheDate = moment(splitString2, "YYYY年MM月DD日 HH:mm:ss");
+      const cacheDateInMs = Date.parse(cacheDate);
+      const currentTime = new Date()
+      const todayInMs = Date.parse(currentTime);
+      const timePassedInMs = todayInMs - cacheDateInMs
+      const oneDayInMs = 1000*60*60*24;
+      const daysPassed = Math.round(timePassedInMs/oneDayInMs);
 
-      return resolve(cacheDate)
+      cacheDate = cacheDate.format("YYYY/MM/DD")
+
+      return resolve([cacheDate, daysPassed])
     } catch (e) {
-      if (html.indexOf(keyEnglishString) == -1) {
+      if (html.indexOf(keyJapaneseString) == -1) {
         if (detectCaptcha(html) == true) {
           const errorType = 'Googleから人間ではなさそうな動きがバレました。次の実行まで待ちましょう'
-          console.log(errorType)
+          console.log(errorType + e)
           return reject(e)
         } else {
           const errorType = 'Googleで確認したら不明なエラーが起きました。ライラに連絡してみよう。'
-          console.log(errorType)
+          console.log(errorType + e)
+          console.log(html)
           return reject(e)
         }
       }
@@ -42,14 +54,30 @@ const getCachedDate = async (pageUrl) => {
 const scrapeGoogleWebCache = (pageUrl) => {
   console.log('Start Scaping Google')
   console.log(pageUrl)
+  const options = {
+    url: googleCacheUrl + pageUrl,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'
+    }
+  }
   return new Promise( (resolve,reject) => {
     rp(googleCacheUrl + pageUrl)
       .then(function(html){
         return resolve(html)
       })
       .catch(function(err){
-        console.log('Something went wrong when scraping Google: ' + err)
-        return reject(err)
+        switch(err.statusCode){
+        case 404:
+          return resolve("Error 404")
+          break;
+        case 429:
+          return resolve("CAPTCHA")
+          break;
+        default:
+          console.log('Something went wrong when scraping Google: ' + err)
+          return reject(err)
+          break;
+        }
       });
   });
 }
