@@ -29,6 +29,7 @@ router.get('/page_list', (req, res, next) => {
       if (err) return console.log('The API returned an error: ' + err);
       const rows = response.data.values;
       if (rows.length) {
+        console.log("pages: " + rows)
         res.send({pages: rows})
       } else {
         console.log('No data found.');
