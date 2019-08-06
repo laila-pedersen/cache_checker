@@ -67,7 +67,7 @@ function writeSheet(sheets, values, today) {
   sheets.spreadsheets.values.append({
     spreadsheetId: '1I8lAWNhnFW8OgWh2caS1Bgv8L9A8b3NqPY4iAB-JHTU',
     range: today + "!A:E",
-    valueInputOption: 'USER_ENTERED',
+    valueInputOption: 'RAW',
     requestBody: {
       values: values
     }
